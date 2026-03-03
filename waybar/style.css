@@ -1,0 +1,181 @@
+/* Waybar — Catppuccin Macchiato — i3-style */
+
+* {
+  border: none;
+  min-height: 0;
+  font-family: "JetbrainsMono Nerd Font";
+  font-size: 15px;
+}
+
+window#waybar {
+  background: rgba(24, 25, 38, 0.96);          /* crust Macchiato quase opaco */
+  border-bottom: 1px solid rgba(138, 173, 244, 0.18);
+  color: #cad3f5;
+}
+
+window#waybar.hidden { opacity: 0.25; }
+
+/* =========================
+   Módulos — base flat
+   ========================= */
+#workspaces, #network, #pulseaudio, #battery, #backlight, #clock,
+#memory, #disk, #cpu, #tray, #custom-launcher, #custom-power,
+#custom-updater, #taskbar, #custom-notification, #idle_inhibitor,
+#custom-media, #custom-weather,
+#custom-gpu, #custom-gpu_temp, #custom-xbox_battery {
+  background: transparent;
+  color: #cad3f5;
+  border: none;
+  border-radius: 0;
+  padding: 0 10px;
+  margin: 0;
+  transition: color 160ms ease;
+}
+
+/* Separador visual entre grupos — borda direita fina */
+#memory, #disk, #custom-weather, #tray, #custom-power, #custom-launcher {
+  border-right: 1px solid rgba(202, 211, 245, 0.10);
+}
+
+#clock, #custom-launcher {
+  border-left: 1px solid rgba(202, 211, 245, 0.10);
+}
+
+/* Hover: apenas clareia o texto */
+#network:hover, #pulseaudio:hover, #memory:hover, #disk:hover,
+#cpu:hover, #clock:hover, #custom-launcher:hover, #custom-power:hover,
+#custom-updater:hover, #custom-notification:hover, #idle_inhibitor:hover,
+#custom-media:hover, #custom-weather:hover {
+  color: #ffffff;
+}
+
+/* =========================
+   Workspaces
+   ========================= */
+#workspaces {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+#workspaces button {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 10px;
+  margin: 0;
+  color: rgba(202, 211, 245, 0.45);        /* dimmed quando vazio */
+  transition: color 160ms ease, border-bottom 160ms ease;
+}
+
+#workspaces button:hover {
+  background: rgba(202, 211, 245, 0.07);
+  color: #cad3f5;
+}
+
+/* Com janela aberta mas não focado */
+#workspaces button.visible,
+#workspaces button:not(.empty):not(.focused):not(.active) {
+  color: #8aadf4;                           /* blue */
+}
+
+/* Vazio */
+#workspaces button.empty {
+  color: rgba(202, 211, 245, 0.30);
+}
+
+/* Focado/Ativo — underline azul */
+#workspaces button.focused,
+#workspaces button.active {
+  color: #8aadf4;
+  background: rgba(138, 173, 244, 0.12);
+  border-bottom: 2px solid #8aadf4;
+}
+
+/* Urgente */
+#workspaces button.urgent {
+  color: #ed8796;
+  border-bottom: 2px solid #ed8796;
+  background: rgba(237, 135, 150, 0.10);
+}
+
+/* =========================
+   Cores por módulo
+   ========================= */
+#network        { color: #f5a97f; }    /* peach */
+#pulseaudio     { color: #8aadf4; }    /* blue */
+#clock          { color: #cad3f5; }    /* text */
+#memory         { color: #91d7e3; }    /* sky */
+#cpu            { color: #b7bdf8; }    /* lavender */
+#disk           { color: #eed49f; }    /* yellow */
+#battery        { color: #a6da95; }    /* green */
+#custom-updater { color: #8bd5ca; }    /* teal */
+#custom-media   { color: #c6a0f6; }    /* mauve */
+#custom-weather { color: #7dc4e4; }    /* weather blue */
+
+#custom-launcher { font-size: 16px; padding: 0 14px 0 12px; }
+#custom-power    { font-size: 16px; padding: 0 12px 0 10px; }
+
+#tray { padding: 0 10px; }
+
+/* =========================
+   Taskbar
+   ========================= */
+#taskbar button {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 7px;
+  margin: 0;
+  transition: background 160ms ease;
+}
+
+#taskbar button:hover {
+  background: rgba(202, 211, 245, 0.08);
+}
+
+/* =========================
+   Notificação
+   ========================= */
+#custom-notification {
+  min-width: 38px;
+  padding: 0 12px;
+}
+
+#custom-notification > label { padding: 0; }
+#custom-notification * { margin: 0; }
+
+/* =========================
+   Power hover
+   ========================= */
+#custom-power:hover { color: #ed8796; }
+
+/* =========================
+   Window title
+   ========================= */
+#window { color: rgba(202, 211, 245, 0.55); background: transparent; }
+
+/* =========================
+   Monitor secundário (HDMI-A-1)
+   ========================= */
+window#secondary {
+  background: rgba(24, 25, 38, 0.92);
+  border-bottom: 1px solid rgba(138, 173, 244, 0.12);
+}
+
+window#secondary * {
+  font-size: 12px;
+}
+
+window#secondary #workspaces button {
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+window#secondary #clock,
+window#secondary #pulseaudio,
+window#secondary #custom-power,
+window#secondary #custom-launcher {
+  padding: 0 8px;
+  font-size: 12px;
+}

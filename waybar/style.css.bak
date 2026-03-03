@@ -1,0 +1,87 @@
+/* Configurações Gerais */
+* {
+    border: none;
+    border-radius: 0px;
+    font-family: "JetbrainsMono Nerd Font";
+    font-size: 16px;
+    min-height: 5px;
+}
+
+@import "themes/macchiato.css";
+
+/* Container Principal */
+window#waybar {
+    background-color: rgba(26, 27, 38, 0.0);
+    border-radius: 0px;
+    margin-top: 0px;
+}
+
+window#waybar.hidden { opacity: 0.2; }
+
+/* Estilo Comum para quase todos os Módulos */
+#workspaces, #network, #pulseaudio, #battery, #backlight, #clock, 
+#memory, #disk, #cpu, #tray, #custom-launcher, #custom-power, 
+#custom-updater, #taskbar, #custom-notification, #idle_inhibitor, 
+#custom-gpu, #custom-gpu_temp, #custom-xbox_battery {
+    margin: 6px 0 6px 8px;
+    padding: 0 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    background: rgba(28, 32, 44, 0.428);
+    color: #F1F1F1;
+    transition: none;
+}
+
+/* --- Ajustes Específicos (O que cada um tem de diferente) --- */
+
+/* Workspaces */
+#workspaces { padding-right: 4px; }
+#workspaces button { color: #7aa2f7; background: transparent; margin-right: 10px; }
+#workspaces button.persistent { font-size: 4px; }
+#workspaces button.empty { color: #e9e5f0; font-size: 2px; }
+#workspaces button.active {
+    background: rgba(59, 97, 200, 0.122);
+    color: rgba(31, 69, 209, 0.908);
+    padding: 0 10px 0 9px;
+    transition: all 0.2s ease-in-out;
+}
+#workspaces button:hover {
+    background: rgba(255, 255, 255, 0.985);
+    color: rgba(240, 240, 240, 0.9);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Cores e Fontes Especiais */
+#network { color: #e0af68; }
+#battery { color: #161320; }
+#custom-launcher, #custom-power { font-size: 18px; padding-right: 14px; }
+#custom-gpu { font-size: 14px; }
+#idle_inhibitor { padding-right: 16px; }
+#tray { padding-left: 15px; }
+
+/* Battery States 
+#battery.charging, #battery.plugged { background-color: transparent; }
+#battery.critical:not(.charging) {
+    background-color: #B5E8E0;
+    animation: blink 0.5s linear infinite alternate;
+} */
+
+/* Hover Effects */
+#custom-power:hover, #taskbar button:hover {
+    background: rgba(255, 255, 255, 0.122);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Exceções de Layout/Cor */
+#custom-media {
+    margin: 6px 0 0 8px;
+    padding: 0 10px;
+    border-radius: 5px;
+    color: #161320;
+    background: #F2CDCD;
+}
+
+#window { color: transparent; background: transparent; }
+
+/* Animações */
+@keyframes blink { to { color: #B5E8E0; } }

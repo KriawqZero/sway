@@ -1,0 +1,71 @@
+if status is-interactive
+    # Catppuccin Macchiato - fish syntax highlighting
+    set -g fish_color_normal cad3f5
+    set -g fish_color_command 8aadf4
+    set -g fish_color_keyword c6a0f6
+    set -g fish_color_quote a6da95
+    set -g fish_color_redirection f5a97f
+    set -g fish_color_end f5a97f
+    set -g fish_color_error ed8796
+    set -g fish_color_param cad3f5
+    set -g fish_color_comment 6e738d
+    set -g fish_color_operator 8bd5ca
+    set -g fish_color_escape ee99a0
+    set -g fish_color_autosuggestion 6e738d
+    set -g fish_color_cancel ed8796
+    set -g fish_color_selection --background=5b6078
+    set -g fish_color_search_match --background=5b6078
+    set -g fish_pager_color_prefix 8bd5ca
+    set -g fish_pager_color_completion cad3f5
+    set -g fish_pager_color_description 6e738d
+    set -g fish_pager_color_progress 8aadf4
+    set -g fish_pager_color_selected_background --background=363a4f
+
+    # Starship custom prompt
+    starship init fish | source
+
+    # Direnv + Zoxide
+    command -v direnv &> /dev/null && direnv hook fish | source
+    command -v zoxide &> /dev/null && zoxide init fish --cmd cd | source
+
+    # Better ls
+    alias ls='eza --icons --group-directories-first -1'
+
+    # Abbrs
+    abbr lg 'lazygit'
+    abbr gd 'git diff'
+    abbr ga 'git add .'
+    abbr gc 'git commit -am'
+    abbr gl 'git log'
+    abbr gs 'git status'
+    abbr gst 'git stash'
+    abbr gsp 'git stash pop'
+    abbr gp 'git push'
+    abbr gpl 'git pull'
+    abbr gsw 'git switch'
+    abbr gsm 'git switch main'
+    abbr gb 'git branch'
+    abbr gbd 'git branch -d'
+    abbr gco 'git checkout'
+    abbr gsh 'git show'
+
+    abbr l 'ls'
+    abbr ll 'ls -l'
+    abbr la 'ls -a'
+    abbr lla 'ls -la'
+
+    # Custom colours
+    cat ~/.local/state/caelestia/sequences.txt 2> /dev/null
+
+    # For jumping between prompts in foot terminal
+    function mark_prompt_start --on-event fish_prompt
+        echo -en "\e]133;A\e\\"
+    end
+end
+
+# pnpm
+set -gx PNPM_HOME "/home/marcilio/.local/share/pnpm"
+if not string match -q -- $PNPM_HOME $PATH
+  set -gx PATH "$PNPM_HOME" $PATH
+end
+# pnpm end
