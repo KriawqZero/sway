@@ -55,6 +55,60 @@ dotfiles/
 └── install_dotfiles.sh         # Cria symlinks em ~/.config
 ```
 
+## Sistema de modos visuais
+
+Troca a aparência completa do ambiente (waybar, rofi, sway gaps/bordas, wallpaper) sem tocar em configurações do sistema.
+
+| Modo | Accent | Gaps | Waybar | Uso |
+|---|---|---|---|---|
+| `normal` | Blue `#8aadf4` | 0/0 | Completa | Uso geral |
+| `foco` | Green `#a6da95` | inner 10 / outer 6 | Minimal (workspaces + clock) | Concentração |
+| `musica` | Mauve `#c6a0f6` | inner 14 / outer 8 | Media em destaque | Chill / música |
+
+### Usar
+
+```bash
+marcilio-mode normal    # ativa o modo
+marcilio-mode foco
+marcilio-mode musica
+```
+
+Ou via keybind no Sway: **`Super + M`** abre o menu rofi.
+
+### Estrutura
+
+```
+dotfiles/
+├── modes/
+│   ├── normal/   waybar.jsonc · waybar.css · rofi.rasi · sway.inc · wallpaper
+│   ├── foco/     waybar.jsonc · waybar.css · rofi.rasi · sway.inc · wallpaper
+│   └── musica/   waybar.jsonc · waybar.css · rofi.rasi · sway.inc · wallpaper
+└── scripts/
+    ├── marcilio-mode   — troca modo, recarrega sway, reinicia waybar, troca wallpaper
+    └── marcilio-menu   — abre seletor rofi
+```
+
+### Wallpapers
+
+Coloque as imagens nos caminhos abaixo (ou edite os arquivos `modes/*/wallpaper`):
+
+```
+~/Wallpapers/background   # normal (já existe)
+~/Wallpapers/foco         # modo foco
+~/Wallpapers/musica       # modo musica
+```
+
+### Instalar scripts (feito automaticamente pelo install_needed_packages.sh)
+
+```bash
+mkdir -p ~/.local/bin
+ln -sf ~/dotfiles/scripts/marcilio-mode ~/.local/bin/marcilio-mode
+ln -sf ~/dotfiles/scripts/marcilio-menu ~/.local/bin/marcilio-menu
+marcilio-mode normal   # ativa modo padrão
+```
+
+---
+
 ## Pós-instalação
 
 Após abrir o Neovim pela primeira vez, o lazy.nvim instala os plugins automaticamente. Em seguida:

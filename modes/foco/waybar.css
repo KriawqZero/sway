@@ -1,0 +1,101 @@
+/* Waybar — Modo Foco — Catppuccin Macchiato + Green accent */
+/* Barra minimalista: sem taskbar, sem media. Accent: #a6da95 (green) */
+
+* {
+  border: none;
+  min-height: 0;
+  font-family: "JetbrainsMono Nerd Font";
+  font-size: 14px;
+}
+
+window#waybar {
+  background: rgba(24, 25, 38, 0.96);
+  border-bottom: 1px solid rgba(166, 218, 149, 0.20);  /* green border */
+  color: #cad3f5;
+}
+
+window#waybar.hidden { opacity: 0.25; }
+
+/* =========================
+   Módulos — base flat
+   ========================= */
+#workspaces, #clock {
+  background: transparent;
+  color: #cad3f5;
+  border: none;
+  border-radius: 0;
+  padding: 0 10px;
+  margin: 0;
+  transition: color 160ms ease;
+}
+
+#clock:hover { color: #ffffff; }
+
+/* =========================
+   Workspaces
+   ========================= */
+#workspaces {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+#workspaces button {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 10px;
+  margin: 0;
+  color: rgba(202, 211, 245, 0.45);
+  transition: color 160ms ease, border-bottom 160ms ease;
+}
+
+#workspaces button:hover {
+  background: rgba(166, 218, 149, 0.07);
+  color: #cad3f5;
+}
+
+#workspaces button.visible,
+#workspaces button:not(.empty):not(.focused):not(.active) {
+  color: #a6da95;                          /* green */
+}
+
+#workspaces button.empty {
+  color: rgba(202, 211, 245, 0.25);
+}
+
+/* Focado — underline verde */
+#workspaces button.focused,
+#workspaces button.active {
+  color: #a6da95;
+  background: rgba(166, 218, 149, 0.12);
+  border-bottom: 2px solid #a6da95;
+}
+
+#workspaces button.urgent {
+  color: #ed8796;
+  border-bottom: 2px solid #ed8796;
+  background: rgba(237, 135, 150, 0.10);
+}
+
+/* =========================
+   Clock — com accent verde
+   ========================= */
+#clock { color: #a6da95; }
+
+/* =========================
+   Monitor secundário
+   ========================= */
+window#secondary {
+  background: rgba(24, 25, 38, 0.92);
+  border-bottom: 1px solid rgba(166, 218, 149, 0.15);
+}
+
+window#secondary * { font-size: 11px; }
+
+window#secondary #workspaces button {
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+window#secondary #clock { padding: 0 8px; }

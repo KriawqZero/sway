@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# marcilio-menu — abre rofi para escolher o modo visual
+# Chamado via keybind $mod+m no Sway
+# ==============================================================================
+
+STATE_FILE="${HOME}/.local/share/marcilio-mode/current"
+CURRENT=$(cat "${STATE_FILE}" 2>/dev/null || echo "normal")
+
+# Simples: mostra "(ATUAL)" ao lado do modo ativo.
+MENU=$(
+  [ "${CURRENT}" = "normal" ] && echo "Normal (ATUAL)" || echo "Normal"
+  [ "${CURRENT}" = "foco"   ] && echo "Foco (ATUAL)"   || echo "Foco"
+  [ "${CURRENT}" = "musica" ] && echo "Música (ATUAL)" || echo "Música"
+)
+
+SELECTED=$(printf '%s' "${MENU}" \
+  | rofi \
+      -dmenu \
+      -p "Modo Visual" \
+      -i \
+      -l 3 \
+      -no-show-icons \
+      -format 'i' \
+      -theme-str 'window  { width: 340px; }' \
+      -theme-str 'listview{ lines: 3; }' \
+      2>/dev/null)
+
+# rofi -format i retorna o índice (0,1,2); mapear para nome
+case "${SELECTED}" in
+  0) MODE="normal" ;;
+  1) MODE="foco"   ;;
+  2) MODE="musica" ;;
+  *) exit 0 ;;
+esac
+
+exec "${HOME}/dotfiles/scripts/marcilio-mode" "${MODE}"

@@ -54,8 +54,17 @@ set $menu $rofi_cmd -show combi -combi-modes drun#run -modes combi
 #set $menu walker
 
 ### Output / Wallpaper
-# Ajuste o caminho se necessário
-output * bg /home/marcilio/Wallpapers/background fill
+# Wallpaper gerenciado pelo sistema de modos (marcilio-mode).
+# Na primeira vez (sem estado salvo), usa o wallpaper padrão como fallback.
+exec_always sh -c '\
+  WP=$(cat "$HOME/.local/share/marcilio-mode/wallpaper" 2>/dev/null); \
+  WP="${WP/#~/$HOME}"; \
+  if [ -n "$WP" ] && [ -f "$WP" ]; then \
+    pkill swaybg 2>/dev/null; sleep 0.1; swaybg -i "$WP" -m fill & \
+  else \
+    pkill swaybg 2>/dev/null; sleep 0.1; \
+    swaybg -i "$HOME/Wallpapers/background" -m fill & \
+  fi'
 #output * bg /home/marcilio/Wallpapers/b-277.jpg fill
 #output DP-2 bg /home/marcilio/Wallpapers/b-065.jpg fill
 #output HDMI-A-1 bg /home/marcilio/Wallpapers/2.jpg fill
@@ -133,7 +142,9 @@ bindsym $mod+e exec $fileManager
 #bindsym $mod+n exec $browser
 bindsym $mod+n exec gtk-launch app.zen_browser.zen
 bindsym $mod+f exec ferdium
-bindsym $mod+m exec gtk-launch com.spotify.Client
+bindsym $mod+Shift+m exec gtk-launch com.spotify.Client
+# Menu de modos visuais (normal / foco / musica)
+bindsym $mod+m exec $HOME/dotfiles/scripts/marcilio-menu
 bindsym $mod+Shift+n exec foot --working-directory=$HOME nvim
 bindsym $mod+c exec cursor
 

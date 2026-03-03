@@ -1147,6 +1147,27 @@ if confirm "Criar symlinks via install_dotfiles.sh" \
   chmod +x "$HOME/.config/sway/scripts/"*.sh 2>/dev/null || true
   chmod +x "$HOME/.config/rofi/"*.sh 2>/dev/null || true
   info "Permissões de execução aplicadas nos scripts da waybar/sway/rofi"
+
+  # Sistema de modos visuais
+  info "Instalando scripts de modos visuais (marcilio-mode / marcilio-menu)..."
+  mkdir -p "$HOME/.local/bin"
+  chmod +x "$DOTFILES_DIR/scripts/marcilio-mode" "$DOTFILES_DIR/scripts/marcilio-menu" 2>/dev/null || true
+  ln -sf "$DOTFILES_DIR/scripts/marcilio-mode" "$HOME/.local/bin/marcilio-mode"
+  ln -sf "$DOTFILES_DIR/scripts/marcilio-menu" "$HOME/.local/bin/marcilio-menu"
+
+  # Estado inicial do modo normal
+  mkdir -p "$HOME/.local/share/marcilio-mode"
+  [ ! -f "$HOME/.local/share/marcilio-mode/current" ] && \
+    echo "normal" > "$HOME/.local/share/marcilio-mode/current"
+  [ ! -f "$HOME/.local/share/marcilio-mode/wallpaper" ] && \
+    echo "$HOME/Wallpapers/background" > "$HOME/.local/share/marcilio-mode/wallpaper"
+
+  # Symlinks ativos (modo normal como padrão)
+  ln -sf "$DOTFILES_DIR/modes/normal/waybar.jsonc"  "$DOTFILES_DIR/waybar/config.jsonc"
+  ln -sf "$DOTFILES_DIR/modes/normal/waybar.css"    "$DOTFILES_DIR/waybar/style.css"
+  ln -sf "$DOTFILES_DIR/modes/normal/rofi.rasi"     "$DOTFILES_DIR/rofi/theme.rasi"
+  ln -sf "$DOTFILES_DIR/modes/normal/sway.inc"      "$DOTFILES_DIR/sway/config.d/99-mode.conf"
+  success "Scripts instalados em ~/.local/bin e modo 'normal' ativado"
 else
   skip "Symlinks ignorados"
 fi
