@@ -1,0 +1,108 @@
+[
+// ── Modo Música — barra superior com media em destaque ────────────────────
+{
+  "output": "DP-2",
+  "height": 34,
+  "mode": "dock",
+  "position": "top",
+  "gtk-layer-shell": true,
+  "reload_style_on_change": true,
+
+  "modules-left":   ["custom/power"],
+  "modules-center": ["custom/media"],
+  "modules-right":  ["pulseaudio", "clock"],
+
+  "pulseaudio": {
+    "tooltip": true,
+    "format": "{icon} {volume}%",
+    "format-muted": "<span color='#c6a0f6'></span> Muted",
+    "tooltip-format": "{desc}",
+    "format-icons": {
+      "default": [
+        "<span color='#c6a0f6'></span>",
+        "<span color='#c6a0f6'></span>",
+        "<span color='#c6a0f6'></span>"
+      ]
+    },
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-click-right": "pavucontrol",
+    "on-scroll-up": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-"
+  },
+
+  "clock": {
+    "format": "{:%H:%M}",
+    "format-alt": "{:%H:%M · %d/%m}",
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "format": {
+        "months":   "<span color='#ffead3'><b>{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today":    "<span color='#ff6699'><b>{}</b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+
+  "custom/media": {
+    "interval": 1,
+    "exec-if": "command -v playerctl >/dev/null 2>&1",
+    "format": "{}",
+    "return-type": "json",
+    "max-length": 60,
+    "escape": true,
+    "exec": "$HOME/.config/waybar/modules/media_controller.sh status",
+    "on-click": "$HOME/.config/waybar/modules/media_controller.sh play-pause",
+    "on-click-middle": "$HOME/.config/waybar/modules/media_controller.sh next",
+    "on-click-right": "$HOME/.config/waybar/modules/media_controller.sh menu",
+    "on-scroll-up": "$HOME/.config/waybar/modules/media_controller.sh previous",
+    "on-scroll-down": "$HOME/.config/waybar/modules/media_controller.sh next"
+  },
+
+  "custom/power": {
+    "format": "<span color='#f75f5f'></span>",
+    "tooltip": false,
+    "on-click": "wlogout -b 5"
+  }
+},
+
+// ── Monitor secundário (musica) ───────────────────────────────────────────
+{
+  "output": "HDMI-A-1",
+  "name": "secondary",
+  "height": 26,
+  "mode": "dock",
+  "position": "top",
+  "gtk-layer-shell": true,
+  "reload_style_on_change": true,
+
+  "modules-left":   [],
+  "modules-center": ["custom/media"],
+  "modules-right":  ["clock"],
+
+  "custom/media": {
+    "interval": 1,
+    "exec-if": "command -v playerctl >/dev/null 2>&1",
+    "format": "{}",
+    "return-type": "json",
+    "max-length": 42,
+    "escape": true,
+    "exec": "$HOME/.config/waybar/modules/media_controller.sh status",
+    "on-click": "$HOME/.config/waybar/modules/media_controller.sh play-pause",
+    "on-click-middle": "$HOME/.config/waybar/modules/media_controller.sh next",
+    "on-click-right": "$HOME/.config/waybar/modules/media_controller.sh menu",
+    "on-scroll-up": "$HOME/.config/waybar/modules/media_controller.sh previous",
+    "on-scroll-down": "$HOME/.config/waybar/modules/media_controller.sh next"
+  },
+
+  "clock": {
+    "format": "{:%H:%M · %d/%m}",
+    "tooltip-format": "<tt>{calendar}</tt>"
+  }
+}
+]

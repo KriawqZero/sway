@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# marcilio-sidebar-toggle — alterna a posição da sidebar (left ↔ right)
+# ==============================================================================
+
+DOTFILES="$HOME/dotfiles"
+STATE_FILE="$HOME/.cache/marcilio/sidebar-position"
+MODE_FILE="$HOME/.local/share/marcilio-mode/current"
+
+CURRENT_POS=$(cat "$STATE_FILE" 2>/dev/null || echo "left")
+MODE=$(cat "$MODE_FILE" 2>/dev/null || echo "normal")
+
+# Alternar posição
+if [ "$CURRENT_POS" = "left" ]; then
+  NEW_POS="right"
+else
+  NEW_POS="left"
+fi
+
+mkdir -p "$(dirname "$STATE_FILE")"
+echo "$NEW_POS" > "$STATE_FILE"
+
+# Gerar novo side.jsonc com a nova posição
+SRC="$DOTFILES/modes/$MODE/waybar-side.jsonc"
+DST="$DOTFILES/waybar/side.jsonc"
+
+if [ ! -f "$SRC" ]; then
+  echo "Erro: config da sidebar não encontrada: $SRC" >&2
+  exit 1
+fi
+
+sed "s/\"position\": \"left\"/\"position\": \"$NEW_POS\"/" "$SRC" > "$DST"
+
+# Reiniciar apenas a sidebar
+if /usr/bin/systemctl --user is-active --quiet waybar-side.service 2>/dev/null; then
+  /usr/bin/systemctl --user restart waybar-side.service
+else
+  pkill -f "waybar.*side.jsonc" 2>/dev/null || true
+  sleep 0.2
+  waybar -c "$HOME/.config/waybar/side.jsonc" \
+         -s "$HOME/.config/waybar/side.css" &
+  disown $!
+fi
+
+notify-send "Sidebar" "Posição: $NEW_POS" -t 1500 2>/dev/null || true

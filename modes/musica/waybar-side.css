@@ -1,0 +1,119 @@
+/* =============================================================================
+   Waybar Sidebar — Modo Música — Catppuccin Macchiato + Mauve accent
+   Accent: #c6a0f6 (mauve)
+   ============================================================================= */
+
+* {
+  border: none;
+  min-height: 0;
+  min-width: 0;
+  font-family: "JetbrainsMono Nerd Font";
+  font-size: 16px;
+}
+
+window#waybar {
+  background: rgba(24, 25, 38, 0.97);
+  border-right: 1px solid rgba(198, 160, 246, 0.18);
+  color: #cad3f5;
+}
+
+/* ── Logo ────────────────────────────────────────────────────────────────── */
+#custom-logo {
+  font-size: 20px;
+  padding: 14px 0 10px 0;
+  color: #c6a0f6;
+  background: transparent;
+  min-width: 64px;
+  border-bottom: 1px solid rgba(198, 160, 246, 0.12);
+  margin-bottom: 4px;
+}
+
+#custom-logo:hover {
+  color: #cad3f5;
+  background: rgba(198, 160, 246, 0.08);
+}
+
+/* ── Workspaces ─────────────────────────────────────────────────────────── */
+#workspaces {
+  background: transparent;
+  padding: 6px 0;
+  margin: 0;
+  border: none;
+}
+
+#workspaces button {
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 6px 6px 0;
+  padding: 9px 0;
+  margin: 1px 0;
+  min-width: 64px;
+  min-height: 0;
+  color: rgba(202, 211, 245, 0.30);
+  font-size: 17px;
+  transition: all 160ms ease;
+}
+
+#workspaces button:hover {
+  background: rgba(198, 160, 246, 0.10);
+  color: rgba(202, 211, 245, 0.80);
+  border-left-color: rgba(198, 160, 246, 0.35);
+}
+
+#workspaces button.visible,
+#workspaces button:not(.empty):not(.focused):not(.active) {
+  color: rgba(198, 160, 246, 0.70);
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+  background: rgba(198, 160, 246, 0.14);
+  color: #c6a0f6;
+  border-left: 2px solid #c6a0f6;
+}
+
+#workspaces button.urgent {
+  background: rgba(237, 135, 150, 0.12);
+  color: #ed8796;
+  border-left: 2px solid #ed8796;
+}
+
+#workspaces button.empty {
+  color: rgba(202, 211, 245, 0.15);
+}
+
+/* ── Base da sidebar ────────────────────────────────────────────────────── */
+#custom-mode,
+#clock {
+  background: transparent;
+  min-width: 64px;
+  padding: 6px 0;
+}
+
+#custom-mode {
+  font-size: 14px;
+  color: rgba(202, 211, 245, 0.45);
+  border-top: 1px solid rgba(198, 160, 246, 0.10);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+#custom-mode:hover {
+  color: #c6a0f6;
+  background: rgba(198, 160, 246, 0.07);
+}
+
+#custom-mode.normal { color: #8aadf4; }
+#custom-mode.foco   { color: #a6da95; }
+#custom-mode.musica { color: #c6a0f6; }
+
+#clock {
+  font-size: 12px;
+  color: rgba(202, 211, 245, 0.50);
+  padding-bottom: 10px;
+}
+
+#clock:hover {
+  color: #cad3f5;
+}

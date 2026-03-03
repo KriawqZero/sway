@@ -1,0 +1,200 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# marcilio-dispatch — executor de ações do command palette
+# Uso: marcilio-dispatch <action_id>
+#
+# Ações disponíveis:
+#   mode:normal | mode:foco | mode:musica
+#   sidebar:toggle-pos
+#   system:reload-sway | system:restart-waybar | system:restart-dunst
+#   dotfiles:open | dotfiles:git-status | dotfiles:git-pull
+#   config:sway | config:waybar | config:rofi | config:marcilio
+#   tools:btop | tools:journal
+#   clipboard:history
+# ==============================================================================
+
+set -uo pipefail
+
+ACTION="${1:-}"
+
+# ── Config do usuário ─────────────────────────────────────────────────────
+_CONFIG="$HOME/.config/marcilio/config.env"
+# shellcheck source=/dev/null
+[ -f "$_CONFIG" ] && source "$_CONFIG"
+
+TERMINAL="${TERMINAL:-foot}"
+EDITOR="${EDITOR:-nvim}"
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+SCRIPTS="$DOTFILES/scripts"
+
+# ── Helpers ───────────────────────────────────────────────────────────────
+_notify() {
+  notify-send "Marcilio" "$*" -t 2500 2>/dev/null || true
+}
+
+_warn_missing() {
+  local cmd="$1"
+  _notify "Binário não encontrado: $cmd"
+  echo "Aviso: '$cmd' não encontrado no PATH" >&2
+}
+
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+_require_bin() {
+  if ! _have "$1"; then
+    _warn_missing "$1"
+    return 1
+  fi
+}
+
+# Abre um comando no terminal e mantém aberto até o usuário pressionar Enter
+_in_term() {
+  if ! _require_bin "$TERMINAL"; then return 1; fi
+  # Executa o comando e aguarda confirmação para fechar
+  "$TERMINAL" -e bash -c "$*; printf '\n\033[0;33m── Enter para fechar ──\033[0m\n'; read -r" &
+  disown $! 2>/dev/null || true
+}
+
+# Abre um arquivo no editor dentro do terminal
+_edit() {
+  if ! _require_bin "$TERMINAL" || ! _require_bin "$EDITOR"; then return 1; fi
+  "$TERMINAL" -e "$EDITOR" "$@" &
+  disown $! 2>/dev/null || true
+}
+
+# Restart do Waybar (top + side) — reutiliza lógica do marcilio-mode
+_restart_waybar() {
+  if /usr/bin/systemctl --user is-enabled --quiet waybar-top.service 2>/dev/null; then
+    /usr/bin/systemctl --user restart waybar-top.service
+    /usr/bin/systemctl --user restart waybar-side.service
+  else
+    pkill -x waybar 2>/dev/null || true
+    sleep 0.3
+    waybar -c "$HOME/.config/waybar/top.jsonc"  -s "$HOME/.config/waybar/top.css"  &
+    disown $! 2>/dev/null || true
+    if [ -f "$HOME/.config/waybar/side.jsonc" ]; then
+      waybar -c "$HOME/.config/waybar/side.jsonc" -s "$HOME/.config/waybar/side.css" &
+      disown $! 2>/dev/null || true
+    fi
+  fi
+}
+
+# ── Dispatcher principal ──────────────────────────────────────────────────
+case "$ACTION" in
+
+  # ── Mode ────────────────────────────────────────────────────────────────
+  mode:normal|mode:foco|mode:musica)
+    exec "$SCRIPTS/marcilio-mode" "${ACTION#mode:}"
+    ;;
+
+  # ── Sidebar ─────────────────────────────────────────────────────────────
+  sidebar:toggle-pos)
+    exec "$SCRIPTS/marcilio-sidebar-toggle"
+    ;;
+
+  # ── System ──────────────────────────────────────────────────────────────
+  system:reload-sway)
+    swaymsg reload
+    _notify "Sway recarregado"
+    ;;
+
+  system:restart-waybar)
+    _restart_waybar
+    _notify "Waybar reiniciado (top + side)"
+    ;;
+
+  system:restart-dunst)
+    if _have dunst; then
+      pkill dunst 2>/dev/null || true
+      sleep 0.2
+      dunst &
+      disown $! 2>/dev/null || true
+      _notify "Dunst reiniciado"
+    else
+      _warn_missing dunst
+    fi
+    ;;
+
+  # ── Dotfiles ────────────────────────────────────────────────────────────
+  dotfiles:open)
+    _edit "$DOTFILES"
+    ;;
+
+  dotfiles:git-status)
+    _in_term "git -C '$DOTFILES' status"
+    ;;
+
+  dotfiles:git-pull)
+    _in_term "git -C '$DOTFILES' pull --ff-only"
+    ;;
+
+  # ── Config files ────────────────────────────────────────────────────────
+  config:sway)
+    _edit "$DOTFILES/sway/config"
+    ;;
+
+  config:waybar)
+    _edit "$DOTFILES/waybar"
+    ;;
+
+  config:rofi)
+    _edit "$DOTFILES/rofi"
+    ;;
+
+  config:marcilio)
+    _edit "$HOME/.config/marcilio/config.env"
+    ;;
+
+  # ── Tools ───────────────────────────────────────────────────────────────
+  tools:btop)
+    if _have btop; then
+      "$TERMINAL" -e btop &
+      disown $! 2>/dev/null || true
+    else
+      _warn_missing btop
+    fi
+    ;;
+
+  tools:journal)
+    _in_term "journalctl -f --no-pager"
+    ;;
+
+  # ── Clipboard ───────────────────────────────────────────────────────────
+  clipboard:history)
+    if _have cliphist && _have wl-copy; then
+      cliphist list \
+        | rofi -dmenu -p "󰅍 Clipboard" -i -no-show-icons \
+               -theme-str 'window { width: 600px; }' \
+               -theme-str 'listview { lines: 10; }' \
+        | cliphist decode \
+        | wl-copy
+    elif _have rofi-clipboard; then
+      exec rofi-clipboard
+    else
+      _notify "Instale cliphist + wl-clipboard para histórico de clipboard"
+    fi
+    ;;
+
+  # ── Help ────────────────────────────────────────────────────────────────
+  "")
+    cat >&2 <<'EOF'
+Uso: marcilio-dispatch <action_id>
+
+Ações disponíveis:
+  mode:normal          mode:foco          mode:musica
+  sidebar:toggle-pos
+  system:reload-sway   system:restart-waybar   system:restart-dunst
+  dotfiles:open        dotfiles:git-status     dotfiles:git-pull
+  config:sway          config:waybar           config:rofi   config:marcilio
+  tools:btop           tools:journal
+  clipboard:history
+EOF
+    exit 1
+    ;;
+
+  *)
+    echo "Erro: ação desconhecida '$ACTION'" >&2
+    _notify "Ação desconhecida: $ACTION"
+    exit 1
+    ;;
+esac

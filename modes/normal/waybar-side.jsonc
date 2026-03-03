@@ -1,0 +1,96 @@
+[
+// ── Modo Normal — sidebar vertical estilo Arc/Zen ─────────────────────────
+// ATENÇÃO: "position": "left" é o template.
+// O script marcilio-mode usa sed para trocar por "right" quando necessário.
+// NÃO altere este campo manualmente — edite ~/.cache/marcilio/sidebar-position
+{
+  "output": "DP-2",
+  "position": "left",
+  "layer": "top",
+  "height": "100%",
+  "width": 68,
+  "spacing": 0,
+  "mode": "dock",
+  "gtk-layer-shell": true,
+  "reload_style_on_change": true,
+  "exclusive": true,
+
+  // Vertical bar: modules-left=topo, modules-center=meio, modules-right=base
+  "modules-left": [
+    "custom/logo",
+    "sway/workspaces"
+  ],
+  "modules-center": [],
+  "modules-right": [
+    "custom/mode",
+    "clock"
+  ],
+
+  // ── Logo / identidade ──────────────────────────────────────────────────
+  "custom/logo": {
+    "format": "◆",
+    "tooltip": false,
+    "on-click": "$HOME/dotfiles/scripts/marcilio-menu",
+    "on-click-right": "$HOME/dotfiles/scripts/marcilio-menu"
+  },
+
+  // ── Workspaces ─────────────────────────────────────────────────────────
+  "sway/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "active-only": false,
+    "format": "{icon}",
+    "format-icons": {
+      "1:dev":    "󰅱",
+      "2:web":    "󰖟",
+      "3:term":   "󰆍",
+      "4:music":  "󰎄",
+      "5:files":  "󰉋",
+      "6:chat":   "󰍩",
+      "7:vm":     "󰍹",
+      "8:misc":   "󰓆",
+      "9:status": "󰔟",
+      "focused":  "",
+      "urgent":   "",
+      "default":  "○"
+    },
+    "tooltip": true,
+    "tooltip-format": "{name}",
+    "persistent-workspaces": {
+      "1:dev":    [],
+      "2:web":    [],
+      "3:term":   [],
+      "4:music":  [],
+      "5:files":  [],
+      "6:chat":   [],
+      "7:vm":     [],
+      "8:misc":   [],
+      "9:status": []
+    }
+  },
+
+  // ── Indicador de modo (base da sidebar) ────────────────────────────────
+  "custom/mode": {
+    "exec": "$HOME/dotfiles/scripts/marcilio-mode-status",
+    "return-type": "json",
+    "interval": 5,
+    "on-click": "$HOME/dotfiles/scripts/marcilio-menu",
+    "on-click-right": "$HOME/dotfiles/scripts/marcilio-sidebar-toggle"
+  },
+
+  // ── Relógio compacto (base da sidebar) ─────────────────────────────────
+  "clock": {
+    "format": "{:%H%n%M}",
+    "rotate": 0,
+    "tooltip-format": "{:%A, %d %B}&#10;<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "format": {
+        "months":   "<span color='#ffead3'><b>{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today":    "<span color='#ff6699'><b>{}</b></span>"
+      }
+    }
+  }
+}
+]

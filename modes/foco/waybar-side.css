@@ -1,0 +1,67 @@
+/* =============================================================================
+   Waybar Sidebar — Modo Foco — minimalista, quase invisível
+   Accent: #a6da95 (green) — discreto
+   ============================================================================= */
+
+* {
+  border: none;
+  min-height: 0;
+  min-width: 0;
+  font-family: "JetbrainsMono Nerd Font";
+  font-size: 14px;
+}
+
+window#waybar {
+  background: rgba(24, 25, 38, 0.85);
+  border-right: 1px solid rgba(166, 218, 149, 0.08);
+  color: #cad3f5;
+}
+
+/* ── Workspaces — minimalistas ──────────────────────────────────────────── */
+#workspaces {
+  background: transparent;
+  padding: 8px 0;
+  margin: 0;
+  border: none;
+}
+
+#workspaces button {
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  padding: 7px 0;
+  margin: 1px 0;
+  min-width: 44px;
+  min-height: 0;
+  color: rgba(202, 211, 245, 0.20);
+  font-size: 14px;
+  transition: all 150ms ease;
+}
+
+#workspaces button:hover {
+  background: rgba(166, 218, 149, 0.07);
+  color: rgba(166, 218, 149, 0.70);
+}
+
+#workspaces button.visible,
+#workspaces button:not(.empty):not(.focused):not(.active) {
+  color: rgba(166, 218, 149, 0.55);
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+  background: rgba(166, 218, 149, 0.10);
+  color: #a6da95;
+  border-left: 2px solid #a6da95;
+}
+
+#workspaces button.urgent {
+  background: rgba(237, 135, 150, 0.10);
+  color: #ed8796;
+  border-left: 2px solid #ed8796;
+}
+
+#workspaces button.empty {
+  color: rgba(202, 211, 245, 0.10);
+}

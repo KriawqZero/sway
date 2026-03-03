@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Retorna o indicador do modo atual em JSON para o módulo custom/mode da sidebar
+M=$(cat "$HOME/.local/share/marcilio-mode/current" 2>/dev/null || echo "normal")
+case "$M" in
+  normal) echo '{"text":"󰒓","tooltip":"Modo: Normal  clique: menu  direito: sidebar","class":"normal"}' ;;
+  foco)   echo '{"text":"󰈙","tooltip":"Modo: Foco  clique: menu  direito: sidebar","class":"foco"}'   ;;
+  musica) echo '{"text":"󰎄","tooltip":"Modo: Música  clique: menu  direito: sidebar","class":"musica"}' ;;
+  *)      echo "{\"text\":\"?\",\"tooltip\":\"Modo: $M\",\"class\":\"\"}" ;;
+esac

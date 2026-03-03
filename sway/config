@@ -29,8 +29,16 @@ client.placeholder      #363a4f #1e2030 #6e738d #363a4f #363a4f
 gaps inner 0
 gaps outer 0
 
-workspace 1 output DP-1
-workspace 2 output HDMI-A-1
+### Workspaces nomeados
+set $ws1  "1:dev"
+set $ws2  "2:web"
+set $ws3  "3:term"
+set $ws4  "4:music"
+set $ws5  "5:files"
+set $ws6  "6:chat"
+set $ws7  "7:vm"
+set $ws8  "8:misc"
+set $ws9  "9:status"
 
 #smart_borders off
 #smart_gaps off
@@ -116,8 +124,12 @@ exec gsettings set org.gnome.desktop.interface gtk-theme "catppuccin-macchiato-l
 # Elephant (walker depende dele) - descomente se for continuar usando
 # exec elephant
 
-# Waybar (mata instância anterior ao recarregar config)
-exec_always sh -c 'pkill -x waybar; waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css'
+# Waybar — inicia ambas as instâncias (top + sidebar)
+exec_always sh -c '\
+  pkill -x waybar; sleep 0.2; \
+  waybar -c "$HOME/.config/waybar/top.jsonc"  -s "$HOME/.config/waybar/top.css"  & \
+  [ -f "$HOME/.config/waybar/side.jsonc" ] && \
+  waybar -c "$HOME/.config/waybar/side.jsonc" -s "$HOME/.config/waybar/side.css" &'
 
 ### Key bindings (suas preferências + alguns úteis do Fedora)
 
@@ -133,9 +145,6 @@ bindsym $mod+Shift+q kill
 
 # Launcher
 bindsym $mod+d exec $menu
-
-# Toggle Waybar
-bindsym $mod+Escape exec sh -c 'pkill -x waybar || waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css'
 
 # Apps
 bindsym $mod+e exec $fileManager
@@ -192,37 +201,28 @@ bindsym $mod+space focus mode_toggle
 # Mouse move/resize
 floating_modifier $mod normal
 
-# Workspaces (seu esquema: 1-5 e Alt+1-5 => 6-10)
-bindsym $mod+1 workspace number 1
-bindsym $mod+2 workspace number 2
-bindsym $mod+3 workspace number 3
-bindsym $mod+4 workspace number 4
-bindsym $mod+5 workspace number 5
+# Workspaces — mod+1-5 (devs/web/term/music/files) e mod+alt+1-4 (chat/vm/misc/status)
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
 
-bindsym $mod+Mod1+1 workspace number 6
-bindsym $mod+Mod1+2 workspace number 7
-bindsym $mod+Mod1+3 workspace number 8
-bindsym $mod+Mod1+4 workspace number 9
-bindsym $mod+Mod1+5 workspace number 10
+bindsym $mod+Mod1+1 workspace $ws6
+bindsym $mod+Mod1+2 workspace $ws7
+bindsym $mod+Mod1+3 workspace $ws8
+bindsym $mod+Mod1+4 workspace $ws9
 
-# (Opcional) atalhos diretos também, se quiser manter compatibilidade mental com padrão
-# bindsym $mod+6 workspace number 6
-# bindsym $mod+7 workspace number 7
-# bindsym $mod+8 workspace number 8
-# bindsym $mod+9 workspace number 9
-# bindsym $mod+0 workspace number 10
-
-# Move container to workspace
-bindsym $mod+Shift+1 move container to workspace number 1
-bindsym $mod+Shift+2 move container to workspace number 2
-bindsym $mod+Shift+3 move container to workspace number 3
-bindsym $mod+Shift+4 move container to workspace number 4
-bindsym $mod+Shift+5 move container to workspace number 5
-bindsym $mod+Shift+6 move container to workspace number 6
-bindsym $mod+Shift+7 move container to workspace number 7
-bindsym $mod+Shift+8 move container to workspace number 8
-bindsym $mod+Shift+9 move container to workspace number 9
-bindsym $mod+Shift+0 move container to workspace number 10
+# Move container para workspace
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9
 
 ### Resize mode (seu estilo)
 mode "resize" {

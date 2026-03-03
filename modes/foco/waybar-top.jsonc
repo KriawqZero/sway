@@ -1,0 +1,53 @@
+[
+// ── Modo Foco — barra superior mínima (só clock) ─────────────────────────
+{
+  "output": "DP-2",
+  "height": 26,
+  "mode": "dock",
+  "position": "top",
+  "gtk-layer-shell": true,
+  "reload_style_on_change": true,
+
+  "modules-left":   [],
+  "modules-center": [],
+  "modules-right":  ["clock"],
+
+  "clock": {
+    "format": "{:%H:%M}",
+    "format-alt": "{:%H:%M · %d/%m}",
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "format": {
+        "months":   "<span color='#ffead3'><b>{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today":    "<span color='#a6da95'><b>{}</b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  }
+},
+
+// ── Monitor secundário (foco) ─────────────────────────────────────────────
+{
+  "output": "HDMI-A-1",
+  "name": "secondary",
+  "height": 20,
+  "mode": "dock",
+  "position": "top",
+  "gtk-layer-shell": true,
+  "reload_style_on_change": true,
+
+  "modules-left":   [],
+  "modules-center": [],
+  "modules-right":  ["clock"],
+
+  "clock": {
+    "format": "{:%H:%M}"
+  }
+}
+]

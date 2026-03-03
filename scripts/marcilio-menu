@@ -1,37 +1,207 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# marcilio-menu — abre rofi para escolher o modo visual
-# Chamado via keybind $mod+m no Sway
+# marcilio-menu — Command Palette central  (Super+M)
+#
+# Uso:
+#   marcilio-menu                 — abre menu principal
+#   marcilio-menu <submenu>       — abre submenu diretamente
+#   Submenus: mode | sidebar | system | dotfiles | config | tools | clipboard
 # ==============================================================================
 
-STATE_FILE="${HOME}/.local/share/marcilio-mode/current"
-CURRENT=$(cat "${STATE_FILE}" 2>/dev/null || echo "normal")
+set -uo pipefail
 
-# Simples: mostra "(ATUAL)" ao lado do modo ativo.
-MENU=$(
-  [ "${CURRENT}" = "normal" ] && echo "Normal (ATUAL)" || echo "Normal"
-  [ "${CURRENT}" = "foco"   ] && echo "Foco (ATUAL)"   || echo "Foco"
-  [ "${CURRENT}" = "musica" ] && echo "Música (ATUAL)" || echo "Música"
-)
+SCRIPTS="$HOME/dotfiles/scripts"
+DISPATCH="$SCRIPTS/marcilio-dispatch"
+CONTEXT="${1:-main}"
 
-SELECTED=$(printf '%s' "${MENU}" \
-  | rofi \
-      -dmenu \
-      -p "Modo Visual" \
-      -i \
-      -l 3 \
-      -no-show-icons \
-      -format 'i' \
-      -theme-str 'window  { width: 340px; }' \
-      -theme-str 'listview{ lines: 3; }' \
-      2>/dev/null)
+# ── Estado atual ──────────────────────────────────────────────────────────
+CURRENT_MODE=$(cat "$HOME/.local/share/marcilio-mode/current" 2>/dev/null || echo "normal")
+SIDEBAR_POS=$(cat "$HOME/.cache/marcilio/sidebar-position"   2>/dev/null || echo "left")
 
-# rofi -format i retorna o índice (0,1,2); mapear para nome
-case "${SELECTED}" in
-  0) MODE="normal" ;;
-  1) MODE="foco"   ;;
-  2) MODE="musica" ;;
-  *) exit 0 ;;
+# ── Rofi — wrapper com estilo command palette ─────────────────────────────
+# Retorna o índice numérico da linha selecionada, exit 0 se Escape
+_rofi() {
+  local prompt="$1"; shift
+  printf '%s\n' "$@" \
+    | rofi \
+        -dmenu \
+        -i \
+        -no-show-icons \
+        -format 'i' \
+        -p "$prompt" \
+        -theme-str 'window    { width: 520px; border-radius: 10px; }' \
+        -theme-str 'listview  { lines: 10; fixed-height: true; scrollbar: false; }' \
+        -theme-str 'element   { padding: 7px 14px; border-radius: 6px; margin: 1px 4px; }' \
+        -theme-str 'inputbar  { margin: 6px 6px 0 6px; border-radius: 8px; }' \
+    2>/dev/null
+}
+
+# Marker de item ativo: ● se atual, ○ caso contrário
+_dot() { [ "$1" = "$2" ] && printf "●  %s" "$3" || printf "   %s" "$3"; }
+
+# Volta ao menu principal
+_back() { exec "$SCRIPTS/marcilio-menu"; }
+
+# ── Submenu: MAIN ─────────────────────────────────────────────────────────
+_menu_main() {
+  local items=(
+    "󰒓   Mode          ›      atual: $CURRENT_MODE"
+    "    Sidebar       ›      posição: $SIDEBAR_POS"
+    "    System        ›      sway / waybar / dunst"
+    "    Dotfiles      ›      git / abrir editor"
+    "    Config        ›      sway / waybar / rofi"
+    "    Tools         ›      btop / journal"
+    "󰅍   Clipboard     ›      histórico"
+  )
+  local sel
+  sel=$(_rofi " Marcilio" "${items[@]}") || exit 0
+  case "$sel" in
+    0) exec "$SCRIPTS/marcilio-menu" mode      ;;
+    1) exec "$SCRIPTS/marcilio-menu" sidebar   ;;
+    2) exec "$SCRIPTS/marcilio-menu" system    ;;
+    3) exec "$SCRIPTS/marcilio-menu" dotfiles  ;;
+    4) exec "$SCRIPTS/marcilio-menu" config    ;;
+    5) exec "$SCRIPTS/marcilio-menu" tools     ;;
+    6) exec "$SCRIPTS/marcilio-menu" clipboard ;;
+  esac
+}
+
+# ── Submenu: MODE ─────────────────────────────────────────────────────────
+_menu_mode() {
+  local items=(
+    "‹   Voltar"
+    "$(_dot normal "$CURRENT_MODE" "Normal    — barra completa, foco no trabalho")"
+    "$(_dot foco   "$CURRENT_MODE" "Foco      — tela limpa, sidebar mínima")"
+    "$(_dot musica "$CURRENT_MODE" "Música    — destaque para media")"
+  )
+  local sel
+  sel=$(_rofi "󰒓 Mode" "${items[@]}") || exit 0
+  case "$sel" in
+    0) _back ;;
+    1) exec "$DISPATCH" mode:normal  ;;
+    2) exec "$DISPATCH" mode:foco    ;;
+    3) exec "$DISPATCH" mode:musica  ;;
+  esac
+}
+
+# ── Submenu: SIDEBAR ──────────────────────────────────────────────────────
+_menu_sidebar() {
+  local toggle_label
+  if [ "$SIDEBAR_POS" = "left" ]; then
+    toggle_label="↔   Posição: esquerda → direita"
+  else
+    toggle_label="↔   Posição: direita → esquerda"
+  fi
+  local items=(
+    "‹   Voltar"
+    "$toggle_label"
+  )
+  local sel
+  sel=$(_rofi " Sidebar" "${items[@]}") || exit 0
+  case "$sel" in
+    0) _back ;;
+    1) exec "$DISPATCH" sidebar:toggle-pos ;;
+  esac
+}
+
+# ── Submenu: SYSTEM ───────────────────────────────────────────────────────
+_menu_system() {
+  local items=(
+    "‹   Voltar"
+    "⟳   Reload Sway"
+    "⟳   Restart Waybar  (top + sidebar)"
+    "⟳   Restart Dunst"
+  )
+  local sel
+  sel=$(_rofi " System" "${items[@]}") || exit 0
+  case "$sel" in
+    0) _back ;;
+    1) exec "$DISPATCH" system:reload-sway      ;;
+    2) exec "$DISPATCH" system:restart-waybar   ;;
+    3) exec "$DISPATCH" system:restart-dunst    ;;
+  esac
+}
+
+# ── Submenu: DOTFILES ─────────────────────────────────────────────────────
+_menu_dotfiles() {
+  local items=(
+    "‹   Voltar"
+    "    Abrir dotfiles no editor"
+    "    Git status"
+    "    Git pull"
+  )
+  local sel
+  sel=$(_rofi " Dotfiles" "${items[@]}") || exit 0
+  case "$sel" in
+    0) _back ;;
+    1) exec "$DISPATCH" dotfiles:open        ;;
+    2) exec "$DISPATCH" dotfiles:git-status  ;;
+    3) exec "$DISPATCH" dotfiles:git-pull    ;;
+  esac
+}
+
+# ── Submenu: CONFIG ───────────────────────────────────────────────────────
+_menu_config() {
+  local items=(
+    "‹   Voltar"
+    "    Sway  config"
+    "    Waybar  config"
+    "    Rofi  config"
+    "    Marcilio  config.env"
+  )
+  local sel
+  sel=$(_rofi " Config" "${items[@]}") || exit 0
+  case "$sel" in
+    0) _back ;;
+    1) exec "$DISPATCH" config:sway      ;;
+    2) exec "$DISPATCH" config:waybar    ;;
+    3) exec "$DISPATCH" config:rofi      ;;
+    4) exec "$DISPATCH" config:marcilio  ;;
+  esac
+}
+
+# ── Submenu: TOOLS ────────────────────────────────────────────────────────
+_menu_tools() {
+  local items=(
+    "‹   Voltar"
+    "    btop"
+    "    journalctl -f"
+  )
+  local sel
+  sel=$(_rofi " Tools" "${items[@]}") || exit 0
+  case "$sel" in
+    0) _back ;;
+    1) exec "$DISPATCH" tools:btop     ;;
+    2) exec "$DISPATCH" tools:journal  ;;
+  esac
+}
+
+# ── Submenu: CLIPBOARD ────────────────────────────────────────────────────
+_menu_clipboard() {
+  local items=(
+    "‹   Voltar"
+    "󰅍   Clipboard history"
+  )
+  local sel
+  sel=$(_rofi "󰅍 Clipboard" "${items[@]}") || exit 0
+  case "$sel" in
+    0) _back ;;
+    1) exec "$DISPATCH" clipboard:history ;;
+  esac
+}
+
+# ── Roteador de contexto ──────────────────────────────────────────────────
+case "$CONTEXT" in
+  main)      _menu_main      ;;
+  mode)      _menu_mode      ;;
+  sidebar)   _menu_sidebar   ;;
+  system)    _menu_system    ;;
+  dotfiles)  _menu_dotfiles  ;;
+  config)    _menu_config    ;;
+  tools)     _menu_tools     ;;
+  clipboard) _menu_clipboard ;;
+  *)
+    echo "Contexto desconhecido: $CONTEXT" >&2
+    exec "$SCRIPTS/marcilio-menu"
+    ;;
 esac
-
-exec "${HOME}/dotfiles/scripts/marcilio-mode" "${MODE}"

@@ -1,0 +1,132 @@
+/* Waybar — Modo Música — Catppuccin Macchiato + Mauve accent */
+/* Media em destaque. Accent: #c6a0f6 (mauve) */
+
+* {
+  border: none;
+  min-height: 0;
+  font-family: "JetbrainsMono Nerd Font";
+  font-size: 15px;
+}
+
+window#waybar {
+  background: rgba(24, 25, 38, 0.96);
+  border-bottom: 1px solid rgba(198, 160, 246, 0.22);  /* mauve border */
+  color: #cad3f5;
+}
+
+window#waybar.hidden { opacity: 0.25; }
+
+/* =========================
+   Módulos — base flat
+   ========================= */
+#workspaces, #clock, #pulseaudio,
+#custom-power, #custom-media {
+  background: transparent;
+  color: #cad3f5;
+  border: none;
+  border-radius: 0;
+  padding: 0 10px;
+  margin: 0;
+  transition: color 160ms ease;
+}
+
+#custom-power:hover { color: #ed8796; }
+
+#pulseaudio:hover, #clock:hover,
+#custom-media:hover { color: #ffffff; }
+
+/* Separadores */
+#pulseaudio {
+  border-right: 1px solid rgba(202, 211, 245, 0.10);
+}
+#clock {
+  border-left: 1px solid rgba(202, 211, 245, 0.10);
+}
+
+/* =========================
+   Workspaces
+   ========================= */
+#workspaces {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+#workspaces button {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 10px;
+  margin: 0;
+  color: rgba(202, 211, 245, 0.45);
+  transition: color 160ms ease, border-bottom 160ms ease;
+}
+
+#workspaces button:hover {
+  background: rgba(198, 160, 246, 0.07);
+  color: #cad3f5;
+}
+
+#workspaces button.visible,
+#workspaces button:not(.empty):not(.focused):not(.active) {
+  color: #c6a0f6;                          /* mauve */
+}
+
+#workspaces button.empty {
+  color: rgba(202, 211, 245, 0.30);
+}
+
+/* Focado — underline mauve */
+#workspaces button.focused,
+#workspaces button.active {
+  color: #c6a0f6;
+  background: rgba(198, 160, 246, 0.12);
+  border-bottom: 2px solid #c6a0f6;
+}
+
+#workspaces button.urgent {
+  color: #ed8796;
+  border-bottom: 2px solid #ed8796;
+  background: rgba(237, 135, 150, 0.10);
+}
+
+/* =========================
+   Cores dos módulos
+   ========================= */
+#pulseaudio    { color: #c6a0f6; }    /* mauve */
+#clock         { color: #cad3f5; }    /* text */
+#custom-power  { font-size: 16px; padding: 0 12px 0 10px; }
+
+/* Media em destaque — mauve vibrante */
+#custom-media {
+  color: #c6a0f6;
+  font-weight: bold;
+  padding: 0 14px;
+  border-left:  1px solid rgba(198, 160, 246, 0.18);
+  border-right: 1px solid rgba(198, 160, 246, 0.18);
+}
+
+/* =========================
+   Monitor secundário
+   ========================= */
+window#secondary {
+  background: rgba(24, 25, 38, 0.92);
+  border-bottom: 1px solid rgba(198, 160, 246, 0.15);
+}
+
+window#secondary * { font-size: 12px; }
+
+window#secondary #workspaces button {
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+window#secondary #clock,
+window#secondary #pulseaudio { padding: 0 8px; }
+
+window#secondary #custom-media {
+  font-size: 12px;
+  padding: 0 10px;
+  border-left:  1px solid rgba(198, 160, 246, 0.15);
+  border-right: 1px solid rgba(198, 160, 246, 0.15);
+}

@@ -1,0 +1,57 @@
+[
+// ── Modo Foco — sidebar minimalista (só workspaces) ───────────────────────
+// Sidebar mais fina, sem logo, sem clock, sem modo indicator
+// "position": "left" é o template — alterado via sed pelo marcilio-mode
+{
+  "output": "DP-2",
+  "position": "left",
+  "layer": "top",
+  "height": "100%",
+  "width": 44,
+  "spacing": 0,
+  "mode": "dock",
+  "gtk-layer-shell": true,
+  "reload_style_on_change": true,
+  "exclusive": true,
+
+  "modules-left": [
+    "sway/workspaces"
+  ],
+  "modules-center": [],
+  "modules-right": [],
+
+  "sway/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "active-only": false,
+    "format": "{icon}",
+    "format-icons": {
+      "1:dev":    "󰅱",
+      "2:web":    "󰖟",
+      "3:term":   "󰆍",
+      "4:music":  "󰎄",
+      "5:files":  "󰉋",
+      "6:chat":   "󰍩",
+      "7:vm":     "󰍹",
+      "8:misc":   "󰓆",
+      "9:status": "󰔟",
+      "focused":  "",
+      "urgent":   "",
+      "default":  "○"
+    },
+    "tooltip": true,
+    "tooltip-format": "{name}",
+    "persistent-workspaces": {
+      "1:dev":    [],
+      "2:web":    [],
+      "3:term":   [],
+      "4:music":  [],
+      "5:files":  [],
+      "6:chat":   [],
+      "7:vm":     [],
+      "8:misc":   [],
+      "9:status": []
+    }
+  }
+}
+]

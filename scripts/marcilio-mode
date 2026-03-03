@@ -2,14 +2,15 @@
 # ==============================================================================
 # marcilio-mode — troca o modo visual do Sway
 # Uso: marcilio-mode <normal|foco|musica>
+# Gerencia: symlinks waybar-top/side, rofi, sway.inc, wallpaper, sidebar position
 # ==============================================================================
 
 MODE="${1:-}"
-DOTFILES="${HOME}/dotfiles"
-MODES_DIR="${DOTFILES}/modes"
-STATE_DIR="${HOME}/.local/share/marcilio-mode"
+DOTFILES="$HOME/dotfiles"
+MODES_DIR="$DOTFILES/modes"
+STATE_DIR="$HOME/.local/share/marcilio-mode"
+SIDEBAR_POS_FILE="$HOME/.cache/marcilio/sidebar-position"
 
-# ── Paleta para mensagens ──────────────────────────────────────────────────
 BOLD='\033[1m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 CYAN='\033[0;36m'; NC='\033[0m'
 
@@ -18,100 +19,104 @@ success() { echo -e "${GREEN}✓${NC} $*"; }
 warn()    { echo -e "${YELLOW}⚠${NC} $*" >&2; }
 
 # ── Validação ─────────────────────────────────────────────────────────────
-case "${MODE}" in
+case "$MODE" in
   normal|foco|musica) ;;
   "")
+    CURRENT=$(cat "$STATE_DIR/current" 2>/dev/null || echo "—")
+    POS=$(cat "$SIDEBAR_POS_FILE" 2>/dev/null || echo "left")
     echo -e "Uso: ${BOLD}marcilio-mode${NC} <normal|foco|musica>"
-    echo ""
-    CURRENT=$(cat "${STATE_DIR}/current" 2>/dev/null || echo "—")
-    echo -e "  Modo atual: ${BOLD}${CURRENT}${NC}"
+    echo -e "  Modo atual:  ${BOLD}${CURRENT}${NC}"
+    echo -e "  Sidebar:     ${BOLD}${POS}${NC}"
     exit 0 ;;
   *)
-    echo "Erro: modo inválido '${MODE}'" >&2
-    echo "Modos disponíveis: normal · foco · musica" >&2
+    echo "Erro: modo inválido '$MODE'" >&2
+    echo "Modos: normal · foco · musica" >&2
     exit 1 ;;
 esac
 
-MODE_DIR="${MODES_DIR}/${MODE}"
+MODE_DIR="$MODES_DIR/$MODE"
+[ -d "$MODE_DIR" ] || { echo "Erro: $MODE_DIR não encontrado" >&2; exit 1; }
 
-if [ ! -d "${MODE_DIR}" ]; then
-  echo "Erro: diretório do modo não encontrado: ${MODE_DIR}" >&2
-  exit 1
-fi
+info "Ativando modo visual: ${BOLD}$MODE${NC}"
 
-info "Ativando modo visual: ${BOLD}${MODE}${NC}"
+# ── 1. Symlinks — top bar ─────────────────────────────────────────────────
+info "Atualizando configs..."
 
-# ── 1. Swap symlinks ───────────────────────────────────────────────────────
-info "Atualizando symlinks..."
+ln -sf "$MODE_DIR/waybar-top.jsonc"  "$DOTFILES/waybar/top.jsonc"
+ln -sf "$MODE_DIR/waybar-top.css"    "$DOTFILES/waybar/top.css"
+ln -sf "$MODE_DIR/waybar-side.css"   "$DOTFILES/waybar/side.css"
+ln -sf "$MODE_DIR/rofi.rasi"         "$DOTFILES/rofi/theme.rasi"
+ln -sf "$MODE_DIR/sway.inc"          "$DOTFILES/sway/config.d/99-mode.conf"
 
-ln -sf "${MODE_DIR}/waybar.jsonc"  "${DOTFILES}/waybar/config.jsonc"
-ln -sf "${MODE_DIR}/waybar.css"    "${DOTFILES}/waybar/style.css"
-ln -sf "${MODE_DIR}/rofi.rasi"     "${DOTFILES}/rofi/theme.rasi"
-ln -sf "${MODE_DIR}/sway.inc"      "${DOTFILES}/sway/config.d/99-mode.conf"
+# ── 2. Gerar side.jsonc com posição atual ─────────────────────────────────
+# A posição é guardada em ~/.cache/marcilio/sidebar-position (left|right)
+SIDEBAR_POS=$(cat "$SIDEBAR_POS_FILE" 2>/dev/null || echo "left")
+SRC_SIDE="$MODE_DIR/waybar-side.jsonc"
+DST_SIDE="$DOTFILES/waybar/side.jsonc"
 
-# ── 2. Salvar estado atual ─────────────────────────────────────────────────
-mkdir -p "${STATE_DIR}"
-echo "${MODE}" > "${STATE_DIR}/current"
+sed "s/\"position\": \"left\"/\"position\": \"$SIDEBAR_POS\"/" \
+  "$SRC_SIDE" > "$DST_SIDE"
 
-# Resolver wallpaper do modo
-WALLPAPER_FILE="${MODE_DIR}/wallpaper"
+# ── 3. Salvar estado ──────────────────────────────────────────────────────
+mkdir -p "$STATE_DIR" "$(dirname "$SIDEBAR_POS_FILE")"
+echo "$MODE" > "$STATE_DIR/current"
+
+WALLPAPER_FILE="$MODE_DIR/wallpaper"
 WALLPAPER=""
-if [ -f "${WALLPAPER_FILE}" ]; then
-  WALLPAPER=$(tr -d '[:space:]' < "${WALLPAPER_FILE}")
-  WALLPAPER="${WALLPAPER/#~/${HOME}}"
+if [ -f "$WALLPAPER_FILE" ]; then
+  WALLPAPER=$(tr -d '[:space:]' < "$WALLPAPER_FILE")
+  WALLPAPER="${WALLPAPER/#~/$HOME}"
 fi
-[ -n "${WALLPAPER}" ] && echo "${WALLPAPER}" > "${STATE_DIR}/wallpaper"
+[ -n "$WALLPAPER" ] && echo "$WALLPAPER" > "$STATE_DIR/wallpaper"
 
-# ── 3. Reload Sway (aplica 99-mode.conf: gaps, bordas, cores) ─────────────
+# ── 4. Reload Sway (aplica 99-mode.conf: gaps, bordas, cores) ─────────────
 info "Recarregando Sway..."
 swaymsg reload
 
-# ── 4. Reiniciar Waybar ────────────────────────────────────────────────────
-sleep 0.4  # dar tempo ao exec_always do Sway terminar
-info "Reiniciando Waybar..."
+# ── 5. Reiniciar ambas as instâncias do Waybar ────────────────────────────
+sleep 0.5
+info "Reiniciando Waybar (top + sidebar)..."
 
-if /usr/bin/systemctl --user is-active --quiet waybar 2>/dev/null; then
-  /usr/bin/systemctl --user restart waybar
+_waybar_systemd_ok() {
+  /usr/bin/systemctl --user is-enabled --quiet "$1" 2>/dev/null
+}
+
+if _waybar_systemd_ok waybar-top.service; then
+  /usr/bin/systemctl --user restart waybar-top.service
+  /usr/bin/systemctl --user restart waybar-side.service
 else
+  # Fallback: pkill + spawn manual (exec_always do Sway já faz isso,
+  # mas garantimos aqui caso o reload do Sway não reinicie)
   pkill -x waybar 2>/dev/null || true
-  sleep 0.25
-  waybar -c "${HOME}/.config/waybar/config.jsonc" \
-         -s "${HOME}/.config/waybar/style.css" &
+  sleep 0.3
+  waybar -c "$HOME/.config/waybar/top.jsonc"  \
+         -s "$HOME/.config/waybar/top.css"  &
   disown $!
+  [ -f "$HOME/.config/waybar/side.jsonc" ] && {
+    waybar -c "$HOME/.config/waybar/side.jsonc" \
+           -s "$HOME/.config/waybar/side.css" &
+    disown $!
+  }
 fi
 
-# ── 5. Trocar wallpaper via swaybg ────────────────────────────────────────
-if [ -n "${WALLPAPER}" ]; then
-  if [ -f "${WALLPAPER}" ]; then
+# ── 6. Trocar wallpaper via swaybg ────────────────────────────────────────
+if [ -n "$WALLPAPER" ]; then
+  if [ -f "$WALLPAPER" ]; then
     info "Trocando wallpaper..."
     pkill swaybg 2>/dev/null || true
     sleep 0.15
-    swaybg -i "${WALLPAPER}" -m fill &
+    swaybg -i "$WALLPAPER" -m fill &
     disown $!
-    echo "   ${WALLPAPER}"
   else
-    warn "Wallpaper não encontrado: ${WALLPAPER}"
-    warn "Coloque uma imagem em: ${WALLPAPER}"
-    warn "O wallpaper atual foi mantido."
+    warn "Wallpaper não encontrado: $WALLPAPER"
   fi
 fi
 
-# ── Notificação via dunst ──────────────────────────────────────────────────
-declare -A ICONS=(
-  [normal]="preferences-desktop-theme"
-  [foco]="applications-education"
-  [musica]="audio-headphones"
-)
-declare -A LABELS=(
-  [normal]=" Normal"
-  [foco]=" Foco"
-  [musica]=" Música"
-)
+# ── Notificação ───────────────────────────────────────────────────────────
+declare -A ICONS=([normal]="preferences-desktop-theme" [foco]="applications-education" [musica]="audio-headphones")
+declare -A LABELS=([normal]="󰒓 Normal" [foco]="󰈙 Foco" [musica]="󰎄 Música")
 
-notify-send \
-  "Modo Visual" \
-  "${LABELS[${MODE}]:-${MODE}}" \
-  --icon="${ICONS[${MODE}]:-preferences-desktop}" \
-  -t 2000 2>/dev/null || true
+notify-send "Modo Visual" "${LABELS[$MODE]:-$MODE}" \
+  --icon="${ICONS[$MODE]:-preferences-desktop}" -t 2000 2>/dev/null || true
 
-success "Modo '${BOLD}${MODE}${NC}' ativado"
+success "Modo '${BOLD}$MODE${NC}' ativado  |  sidebar: $SIDEBAR_POS"
