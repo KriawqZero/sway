@@ -24,7 +24,7 @@ Configurações pessoais para um ambiente Wayland com Sway no Linux.
 ## Instalação
 
 ```bash
-git clone --recurse-submodules https://github.com/SEU_USUARIO/dotfiles ~/dotfiles
+git clone --recurse-submodules https://github.com/KriawqZero/dotfiles ~/dotfiles
 cd ~/dotfiles
 
 # 1. Instala todos os pacotes necessários (Arch, Fedora, Debian/Ubuntu/Mint, Void)
